@@ -10,11 +10,20 @@ const path = './src/talker.json';
 
 app.get('/talker', async (_req, res) => {
   const talkers = await readTalkerJson(path);
-  console.log(talkers);
   if (talkers.length > 0) {
     return res.status(200).json(talkers);
   } 
   return res.status(200).send([]);
+});
+
+app.get('/talker/:id', async (req, res) => {
+  const talkers = await readTalkerJson(path);
+  const { id } = req.params;
+  const talker = talkers.find((el) => el.id === Number(id));
+  if (talker) {
+    return res.status(200).json(talker);
+  }
+  return res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
