@@ -1,6 +1,6 @@
 const express = require('express');
 const readTalkerJson = require('./utils/fs/readTalkerJson');
-const tokenGenerate = require('./utils/tokenGenerate');
+const loginRouter = require('./routes/loginRouter');
 
 const app = express();
 app.use(express.json());
@@ -8,6 +8,8 @@ app.use(express.json());
 const HTTP_OK_STATUS = 200;
 const PORT = process.env.PORT || '3001';
 const path = './src/talker.json';
+
+app.use('/login', loginRouter);
 
 app.get('/talker', async (_req, res) => {
   const talkers = await readTalkerJson(path);
@@ -25,14 +27,6 @@ app.get('/talker/:id', async (req, res) => {
     return res.status(200).json(talker);
   }
   return res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
-});
-
-app.post('/login', (_req, res) => {
-  // const { email, password } = req.body;
-  const token = tokenGenerate();
-  // console.log('token gerado', token);
-  
-  return res.status(200).send({ token: `${token}` });
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
