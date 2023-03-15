@@ -39,6 +39,34 @@ async (req, res) => {
   }
 });
 
+app.put('/talker/:id',
+authToken,
+validateName,
+validateAge,
+validateTalk,
+validateWatchedAt,
+validateRate,
+async (req, res) => {
+  const talkers = await readTalkerJson(path);
+  const { id } = req.params;
+  const { name, age, talk: { watchedAt, rate } } = req.body;
+  // console.log('consigo pegar o id?', id);
+  if (!talkers.some((talk) => talk.id === Number(id))) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+
+  for (let i = 0; i < talkers.length; i += 1) {
+    if (talkers[i].id === Number(id)) {
+      talkers[i].name = name; talkers[i].age = age; talkers[i].talk.watchedAt = watchedAt;
+      talkers[i].talk.rate = rate;
+    }
+  }
+
+  await writeTalkerJson(path, talkers);
+  const findTalker = talkers.find((talk) => talk.id === Number(id));
+  res.status(200).json(findTalker);
+});
+
 app.get('/talker', async (_req, res) => {
   const talkers = await readTalkerJson(path);
   if (talkers.length > 0) {
@@ -63,5 +91,5 @@ app.get('/', (_request, response) => {
 });
 
 app.listen(PORT, () => {
-  console.log('Online');
+  console.log('Online na porta 3001');
 });
