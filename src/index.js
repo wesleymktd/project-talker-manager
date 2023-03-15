@@ -67,6 +67,24 @@ async (req, res) => {
   res.status(200).json(findTalker);
 });
 
+app.delete('/talker/:id',
+authToken,
+async (req, res) => {
+  const id = Number(req.params.id);
+  const talkers = await readTalkerJson(path);
+  if (!talkers.some((talk) => talk.id === Number(id))) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+  
+  const talkerEsc = talkers.find((talk) => talk.id === id);
+  const index = talkers.indexOf(talkerEsc);
+  talkers.splice(index, 1);
+
+  await writeTalkerJson(path, talkers);
+
+  res.sendStatus(204);
+});
+
 app.get('/talker', async (_req, res) => {
   const talkers = await readTalkerJson(path);
   if (talkers.length > 0) {
