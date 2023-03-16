@@ -18,6 +18,36 @@ const path = './src/talker.json';
 
 app.use('/login', loginRouter);
 
+app.get('/talker', async (_req, res) => {
+  const talkers = await readTalkerJson(path);
+  if (talkers.length > 0) {
+    return res.status(200).json(talkers);
+  } 
+  return res.status(200).send([]);
+});
+
+app.get('/talker/search', authToken, async (req, res) => {
+  const { q } = req.query;
+  const talkers = await readTalkerJson(path);
+
+  if (!q) {
+    return res.status(200).json(talkers);
+  }
+
+  const filtName = talkers.filter((talk) => talk.name.toLowerCase().includes(q.toLowerCase()));
+  res.status(200).json(filtName);
+});
+
+app.get('/talker/:id', async (req, res) => {
+  const talkers = await readTalkerJson(path);
+  const { id } = req.params;
+  const talker = talkers.find((el) => el.id === Number(id));
+  if (talker) {
+    return res.status(200).json(talker);
+  }
+  return res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
+});
+
 app.post('/talker',
 authToken,
 validateName,
@@ -83,24 +113,6 @@ async (req, res) => {
   await writeTalkerJson(path, talkers);
 
   res.sendStatus(204);
-});
-
-app.get('/talker', async (_req, res) => {
-  const talkers = await readTalkerJson(path);
-  if (talkers.length > 0) {
-    return res.status(200).json(talkers);
-  } 
-  return res.status(200).send([]);
-});
-
-app.get('/talker/:id', async (req, res) => {
-  const talkers = await readTalkerJson(path);
-  const { id } = req.params;
-  const talker = talkers.find((el) => el.id === Number(id));
-  if (talker) {
-    return res.status(200).json(talker);
-  }
-  return res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
 });
 
 // não remova esse endpoint, e para o avaliador funcionar
